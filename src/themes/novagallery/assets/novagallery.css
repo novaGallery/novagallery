@@ -77,4 +77,9 @@ main .cover-image img {
 .sl-wrapper .sl-counter { 
   color: var(--lightbox-color);
   opacity: 1;
-  }
+}
+
+.sl-wrapper .sl-download > a {
+  font-size: 1.5rem;
+  text-decoration: none;
+}

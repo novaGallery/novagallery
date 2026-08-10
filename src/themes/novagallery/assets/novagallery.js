@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     captionsData: 'data-caption',
     widthRatio: 1,
     heightRatio: 1,
-    //download: 'Download Image',
+    download: '📥',
     fadeSpeed: 300, 
     animationSlide: true
   });
