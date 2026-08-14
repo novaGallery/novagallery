@@ -12,6 +12,7 @@
   "storageDirName": "storage",
   "imageCache": true,
   "cacheFileListMaxAge": 60,
+  "coverFileName": "cover.jpg",
   "imageSizes": {
     "thumbnail": "400x400",
     "large": "2000"

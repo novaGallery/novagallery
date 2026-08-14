@@ -12,7 +12,7 @@ $this->seo('metaDescription', $this->data('pageTitle').' - '.$this->seo('metaDes
 if(file_exists(IMAGES_DIR.DS.$this->album)){
   // load images and sub albums from album
   $addons->dispatch('beforeLoadGallery');
-  $this->gallery = new novafacile\novaGallery(IMAGES_DIR.DS.$this->album, $this->config('imageCache'), $this->config('cacheFileListMaxAge'), $this->config('useExifDate'), CACHE_DIR.DS.$this->album);
+  $this->gallery = new novafacile\novaGallery(IMAGES_DIR.DS.$this->album, $this->config('imageCache'), $this->config('cacheFileListMaxAge'), $this->config('useExifDate'), CACHE_DIR.DS.$this->album, 'filesCache.php', $this->config('coverFileName'));
   $parentPage = $this->gallery->parentAlbum($this->album);
   if($parentPage){
     $parentPage = 'album/'.$parentPage;

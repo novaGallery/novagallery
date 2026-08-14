@@ -11,6 +11,7 @@ novaGallery is a beautiful php image gallery with the focus on your images, trim
 * **Albums**: Directories are rendered as albums
 * **Sub-Albums**: Can be used for more detailed organisation
 * **Preview images** for albums: Automatically generate an album preview image
+* **Custom album covers**: Use your own image as album cover (placed in album directory)
 * **Photo overview**: All photos are displayed sorted by creation date or name
 * **Lightbox**: View your photos in large format, hiding everything that is distracting
 * **Slideshow**: All photos in an album, can be displayed and presented via click (or keyboard) in the lightbox view
@@ -62,6 +63,17 @@ novaGallery is a beautiful php image gallery with the focus on your images, trim
 * Every folder in galleries is a gallery
 * In `config/site.php` you can change some basic informations, image sizes and other settings
 * That's it :-)
+
+### Custom Album Covers
+
+You can customize the cover image for each album by placing a file named `cover.jpg` (or your custom filename) in the album directory. This image will be used as the album cover instead of the automatically generated preview.
+
+To use a custom cover image:
+1. Place your cover image file in the album directory
+2. The image should be in JPEG, PNG, GIF, or WebP format
+3. The filename must be `cover.jpg` (by default) or your custom filename configured in `coverFileName`
+
+Custom cover images are automatically excluded from the album's image list.
 
 #### Configuration for Installation in Subdir
 
@@ -155,6 +167,7 @@ novaGallery is a beautiful php image gallery with the focus on your images, trim
 | `storageDirName`           | Directory name used for cached/generated files                          | `storage`                                                   |
 | `imageCache`               | Enables or disables image caching (`true`, `false`)                         | `true`                                                      |
 | `cacheFileListMaxAge`      | Maximum age (in seconds) of cached file lists                           | `60`                                                        |
+| `coverFileName`            | Name of the custom cover image file                                     | `cover.jpg`                                                 |
 | `imageSizes.thumbnail`     | Size of the thumbnail images (width x height, or largest side)              | `400x400`                                                   |
 | `imageSizes.large`         | Maximum width for the large image version (width x height, or largest side) | `2000`                                                      |
 | `imageQuality`             | JPEG quality for generated images (1–100)                               | `85`                                                        |

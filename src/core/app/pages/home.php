@@ -7,7 +7,7 @@ $this->seo('metaDescription', $this->config('metaDescription'));
 
 // load images and albums from root dir
 $addons->dispatch('beforeLoadGallery');
-$this->gallery = new novafacile\novaGallery(IMAGES_DIR, $this->config('imageCache'), $this->config('cacheFileListMaxAge'), $this->config('useExifDate'), CACHE_DIR);
+$this->gallery = new novafacile\novaGallery(IMAGES_DIR, $this->config('imageCache'), $this->config('cacheFileListMaxAge'), $this->config('useExifDate'), CACHE_DIR, 'filesCache.php', $this->config('coverFileName'));
 $addons->dispatch('afterLoadGallery');
 
 // set data

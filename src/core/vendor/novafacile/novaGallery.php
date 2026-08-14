@@ -24,15 +24,17 @@ class novaGallery {
   protected bool $useExif = true;
   protected bool $allowSubAlbums = true;
   protected array $filesCache = [];
+  protected string $coverFileName = 'cover.jpg';
 
   // Todo: config via config array or object
-  function __construct(string $dir, bool $onlyWithImages = true, bool|int $maxCacheAge = 60, bool $useExif = true, bool|string $cacheDir = false, string $cacheFile = 'filesCache.php'){
+  function __construct(string $dir, bool $onlyWithImages = true, bool|int $maxCacheAge = 60, bool $useExif = true, bool|string $cacheDir = false, string $cacheFile = 'filesCache.php', string $coverFileName = 'cover.jpg'){
     $this->dir = $dir;
     $this->onlyWithImages = $onlyWithImages;
     $this->maxCacheAge = $maxCacheAge;
     $this->cacheDir = $cacheDir;
     $this->cacheFile = $cacheFile;
     $this->useExif = $useExif;
+    $this->coverFileName = $coverFileName;
 
     $cacheResult = false;
     if($this->maxCacheAge){
@@ -78,9 +80,27 @@ class novaGallery {
         );
     }
   }
+    
+    // Exclude the custom cover image file from the image list
+    $images = $this->excludeCoverImage($images, $dir);
+    
     return $this->fileList($images, true);
   }
 
+  /**
+   * Exclude the custom cover image file from the image list
+   * Case-insensitive matching for cover.jpg, Cover.jpg, COVER.JPG, etc.
+   */
+  protected function excludeCoverImage(array $images, string $dir) : array {
+    $coverPathLower = strtolower($dir . '/' . $this->coverFileName);
+    
+    // Filter images to exclude cover file (case-insensitive)
+    $filtered = array_filter($images, function($image) use ($coverPathLower) {
+      return strtolower($image) !== $coverPathLower;
+    });
+    
+    return $filtered;
+  }
 
   // create array of files or dirs without path & with last modification date
   protected function fileList(array $list, bool $withCaptureDate = false) : array {
@@ -241,7 +261,7 @@ class novaGallery {
   protected function removeEmptyAlbums(array $albums) : array {
     foreach ($albums as $album => $modDate) {
       if(!$this->hasImages($album) && $this->allowSubAlbums){
-        $subAlbum = new novaGallery($this->dir.'/'.$album, $this->onlyWithImages, $this->maxCacheAge, $this->useExif, $this->cacheDir.'/'.$album, $this->cacheFile);
+        $subAlbum = new novaGallery($this->dir.'/'.$album, $this->onlyWithImages, $this->maxCacheAge, $this->useExif, $this->cacheDir.'/'.$album, $this->cacheFile, $this->coverFileName);
         if(!$subAlbum->hasAlbums()){
           unset($albums[$album]);
         }
@@ -332,20 +352,34 @@ class novaGallery {
     return $this->order($this->images, $order);
   }
 
-
-
+  /**
+   * Return the cover image for a gallery or album
+   * If a custom cover file exists, it will be returned
+   * Otherwise, returns the first image based on the specified order
+   */
   public function coverImage(string|int $album, string $order = 'default') : string {
     $album = (string) $album;
-    if($this->hasImages($album)){
-      $images = $this->order($this->albums["$album"], $order);  
+    
+    // Determine the directory to check
+    $checkDir = $this->dir.'/'.$album;
+    
+    // Check if a custom cover file exists
+    if($this->hasCoverImage($checkDir)){
+      return $this->getCoverImageName();
+    }
+
+    // Otherwise, use default behavior
+    if($album !== '' && $this->hasImages($album)){
+      $images = $this->order($this->albums[$album], $order);  
       reset($images);
       return key($images);
     } 
+    
     if(!$this->allowSubAlbums){
       return false;
     }
 
-    $subGallery = new novaGallery($this->dir.'/'.$album, $this->onlyWithImages, $this->maxCacheAge, $this->useExif, $this->cacheDir.'/'.$album, $this->cacheFile);
+    $subGallery = new novaGallery($this->dir.'/'.$album, $this->onlyWithImages, $this->maxCacheAge, $this->useExif, $this->cacheDir.'/'.$album, $this->cacheFile, $this->coverFileName);
     if($subGallery->hasAlbums()){
       $albums = $subGallery->albums($order);
       $firstAlbum = array_key_first($albums);
@@ -358,6 +392,46 @@ class novaGallery {
     }
     // else return false
     return false;
+  }
+
+  /**
+   * Check if a custom cover image file exists in the directory
+   * Case-insensitive file name matching for cross-platform compatibility
+   */
+  protected function hasCoverImage(string $dir) : bool {
+    $coverPathLower = strtolower($dir . '/' . $this->coverFileName);
+    
+    // Get list of all image files in directory
+    if(defined('GLOB_BRACE')){
+      $imageOnly = '*.{[jJ][pP][gG],[jJ][pP][eE][gG],[pP][nN][gG],[gG][iI][fF],[wW][eE][bB][pP]}';
+      $allFiles = glob($dir.'/'.$imageOnly, GLOB_BRACE);
+    } else {
+      $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];  
+      $allFiles = [];  
+      foreach ($extensions as $ext) {  
+        $allFiles = array_merge(
+          $allFiles,  
+          glob($dir.'/*.'.$ext),  
+          glob($dir.'/*.'.strtoupper($ext)) 
+        );
+      }
+    }
+    
+    // Check if cover file exists
+    foreach($allFiles as $file) {
+      if(strtolower($file) === $coverPathLower) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Get the cover image file name
+   */
+  protected function getCoverImageName() : string {
+    return $this->coverFileName;
   }
 
   public function hasAlbums() : bool {
